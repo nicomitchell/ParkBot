@@ -4,4 +4,4 @@ WORKDIR /parkbot/
 
 COPY services/ $WORKDIR/services
 
-ENTRYPOINT [ "mysql"]
+ENTRYPOINT ["mysql"]
