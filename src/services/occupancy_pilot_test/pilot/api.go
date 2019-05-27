@@ -1,4 +1,4 @@
-package occupancy_pilot_test
+package pilot
 
 import (
 	"encoding/json"
@@ -9,6 +9,13 @@ import (
 	"github.com/gorilla/mux"
 )
 
+//StatusHandler is the API interface for the occupancy pilot test
+type StatusHandler interface {
+	GetLotInfo(w http.ResponseWriter, r *http.Request)
+	NewLot(w http.ResponseWriter, r *http.Request)
+	GetOccupancyInfo(w http.ResponseWriter, r *http.Request)
+}
+
 //OccupancyStatusHandler is used to handle HTTP requests related to lots and occupancy
 type OccupancyStatusHandler struct {
 	lots map[string]*Lot
@@ -16,6 +23,13 @@ type OccupancyStatusHandler struct {
 
 type errMessage struct {
 	Message string `json:"message"`
+}
+
+//NewStatusHandler returns a new status handler
+func NewStatusHandler(lots map[string]*Lot) StatusHandler {
+	return &OccupancyStatusHandler{
+		lots: lots,
+	}
 }
 
 func (sh *OccupancyStatusHandler) addLot(l *Lot) error {
@@ -70,8 +84,8 @@ func (sh *OccupancyStatusHandler) NewLot(w http.ResponseWriter, r *http.Request)
 	json.NewEncoder(w).Encode(errMessage{Message: err.Error()})
 }
 
-//GetOccupancyInformation gets occupancy info for the lot given
-func (sh *OccupancyStatusHandler) GetOccupancyInformation(w http.ResponseWriter, r *http.Request) {
+//GetOccupancyInfo gets occupancy info for the lot given
+func (sh *OccupancyStatusHandler) GetOccupancyInfo(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	if v, ok := vars["lot"]; !ok {
 		w.WriteHeader(http.StatusBadRequest)

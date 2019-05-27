@@ -1,4 +1,4 @@
-package occupancy_pilot_test
+package pilot
 
 import (
 	"encoding/json"
