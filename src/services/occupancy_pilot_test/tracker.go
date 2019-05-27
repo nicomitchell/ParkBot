@@ -24,16 +24,16 @@ func (t *tracker) trackExit() error {
 }
 
 type coord struct {
-	Lat  float64 `json:"latitude"`
-	Long float64 `json:"longitude"`
+	Lat  float64 `json:"latitude,omitempty"`
+	Long float64 `json:"longitude,omitempty"`
 }
 
 //Lot is a parking lot
 type Lot struct {
-	Location         coord  `json:"location"`
-	ID               string `json:"id"`
-	LotName          string `json:"name"`
-	MaxOccupancy     int    `json:"max_occupancy"`
+	Location         coord  `json:"location,omitempty"`
+	ID               string `json:"id,omitempty"`
+	LotName          string `json:"name,omitempty"`
+	MaxOccupancy     int    `json:"max_occupancy,omitempty"`
 	occupancyTracker *tracker
 }
 
