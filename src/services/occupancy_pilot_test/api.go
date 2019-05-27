@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/gorilla/mux"
 )
@@ -45,14 +46,24 @@ func (sh *OccupancyStatusHandler) GetLotInfo(w http.ResponseWriter, r *http.Requ
 //NewLot creates a new lot
 func (sh *OccupancyStatusHandler) NewLot(w http.ResponseWriter, r *http.Request) {
 	d := r.Body
-	data := []byte{}
-	_, err := d.Read(data)
+	q := r.URL.Query()
+	var occupancy int
+	var err error
+	if vals := q.Get("start_occupancy"); len(vals) > 0 {
+		occupancy, err = strconv.Atoi(string(vals[0]))
+	} else {
+		occupancy = 0
+	}
 	if err == nil {
-		lot, err := decodeLot(data)
+		data := []byte{}
+		_, err = d.Read(data)
 		if err == nil {
-			w.WriteHeader(http.StatusOK)
-			json.NewEncoder(w).Encode(lot)
-			return
+			lot, err := decodeLot(data, occupancy)
+			if err == nil {
+				w.WriteHeader(http.StatusOK)
+				json.NewEncoder(w).Encode(lot)
+				return
+			}
 		}
 	}
 	w.WriteHeader(http.StatusBadRequest)

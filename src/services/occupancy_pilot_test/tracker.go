@@ -51,11 +51,11 @@ func NewLot(lat, long float64, id, lotName string, maxOccupancy, startOccupancy 
 	}
 }
 
-func decodeLot(data []byte) (*Lot, error) {
+func decodeLot(data []byte, startOccupancy int) (*Lot, error) {
 	lot := &Lot{}
 	err := json.Unmarshal(data, lot)
 	if err == nil {
-		lot.occupancyTracker = &tracker{maxOccupancy: lot.MaxOccupancy, occupancy: 0}
+		lot.occupancyTracker = &tracker{maxOccupancy: lot.MaxOccupancy, occupancy: startOccupancy}
 		return lot, nil
 	}
 	return nil, err
