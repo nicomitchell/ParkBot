@@ -1,6 +1,9 @@
 package occupancy_pilot_test
 
-import "errors"
+import (
+	"encoding/json"
+	"errors"
+)
 
 type tracker struct {
 	occupancy    int
@@ -46,6 +49,16 @@ func NewLot(lat, long float64, id, lotName string, maxOccupancy, startOccupancy 
 		MaxOccupancy:     maxOccupancy,
 		occupancyTracker: &tracker{maxOccupancy: maxOccupancy, occupancy: startOccupancy},
 	}
+}
+
+func decodeLot(data []byte) (*Lot, error) {
+	lot := &Lot{}
+	err := json.Unmarshal(data, lot)
+	if err == nil {
+		lot.occupancyTracker = &tracker{maxOccupancy: lot.MaxOccupancy, occupancy: 0}
+		return lot, nil
+	}
+	return nil, err
 }
 
 //TrackEntry should be called when a car enters the lot
