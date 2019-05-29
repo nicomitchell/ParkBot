@@ -11,9 +11,12 @@ import (
 
 //StatusHandler is the API interface for the occupancy pilot test
 type StatusHandler interface {
+	HealthCheck(w http.ResponseWriter, r *http.Request)
 	GetLotInfo(w http.ResponseWriter, r *http.Request)
 	NewLot(w http.ResponseWriter, r *http.Request)
 	GetOccupancyInfo(w http.ResponseWriter, r *http.Request)
+	TrackEntry(w http.ResponseWriter, r *http.Request)
+	TrackExit(w http.ResponseWriter, r *http.Request)
 }
 
 //OccupancyStatusHandler is used to handle HTTP requests related to lots and occupancy
@@ -38,6 +41,11 @@ func (sh *OccupancyStatusHandler) addLot(l *Lot) error {
 		return nil
 	}
 	return fmt.Errorf("a lot with that ID already exists: %s", sh.lots[l.ID].LotName)
+}
+
+//HealthCheck can be used to check the status of the API
+func (sh *OccupancyStatusHandler) HealthCheck(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
 }
 
 //GetLotInfo returns all the stored information about a parking lot
@@ -107,6 +115,50 @@ func (sh *OccupancyStatusHandler) GetOccupancyInfo(w http.ResponseWriter, r *htt
 					Occupied:    l.Occupancy(),
 					PercentFull: l.PercentFull(),
 				})
+		}
+	}
+}
+
+//TrackExit tracks an exit from a lot
+func (sh *OccupancyStatusHandler) TrackExit(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	if v, ok := vars["lot"]; !ok {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(errMessage{Message: "you must include a lot id"})
+	} else {
+		if l, ok := sh.lots[v]; !ok {
+			w.WriteHeader(http.StatusNotFound)
+			json.NewEncoder(w).Encode(errMessage{Message: fmt.Sprintf("no lot matching id: %s found", v)})
+		} else {
+			err := l.TrackExit()
+			if err != nil {
+				w.WriteHeader(http.StatusMethodNotAllowed)
+				json.NewEncoder(w).Encode(errMessage{Message: "lot is empty; no exits possible"})
+			} else {
+				w.WriteHeader(http.StatusOK)
+			}
+		}
+	}
+}
+
+//TrackEntry tracks an entry to a lot
+func (sh *OccupancyStatusHandler) TrackEntry(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	if v, ok := vars["lot"]; !ok {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(errMessage{Message: "you must include a lot id"})
+	} else {
+		if l, ok := sh.lots[v]; !ok {
+			w.WriteHeader(http.StatusNotFound)
+			json.NewEncoder(w).Encode(errMessage{Message: "no lot matching that id found"})
+		} else {
+			err := l.TrackEntry()
+			if err != nil {
+				w.WriteHeader(http.StatusMethodNotAllowed)
+				json.NewEncoder(w).Encode(errMessage{Message: "lot is full; no spots available"})
+			} else {
+				w.WriteHeader(http.StatusOK)
+			}
 		}
 	}
 }
