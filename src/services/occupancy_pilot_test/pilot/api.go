@@ -3,6 +3,7 @@ package pilot
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"strconv"
 
@@ -77,13 +78,14 @@ func (sh *OccupancyStatusHandler) NewLot(w http.ResponseWriter, r *http.Request)
 		occupancy = 0
 	}
 	if err == nil {
-		data := []byte{}
-		_, err = d.Read(data)
+		var data []byte
+		data, err = ioutil.ReadAll(d)
 		if err == nil {
-			lot, err := decodeLot(data, occupancy)
+			var lot *Lot
+			lot, err = decodeLot(data, occupancy)
 			if err == nil {
+				sh.lots[lot.ID] = lot
 				w.WriteHeader(http.StatusOK)
-				json.NewEncoder(w).Encode(lot)
 				return
 			}
 		}
