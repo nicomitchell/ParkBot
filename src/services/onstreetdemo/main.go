@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	h := handler.NewHandler(10)
+	h := handler.NewHandler(20)
 	router := mux.NewRouter()
 	router.HandleFunc("/state", h.GetState).Methods("GET")
 	go func() {

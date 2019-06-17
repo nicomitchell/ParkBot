@@ -2,54 +2,60 @@ package onstreetdemo
 
 import (
 	"encoding/json"
+	"fmt"
 	"math/rand"
 	"net/http"
 	"sync"
 	"time"
 )
 
-type Handler struct {
+//Handler is the interface for the demo api
+type Handler interface {
+	GenerateEvent()
+	GetState(http.ResponseWriter, *http.Request)
+}
+
+type handler struct {
 	numSpots int
-	spots    map[int]bool
+	spots    map[string]bool
 	sync.Mutex
 }
 
 //NewHandler returns a new Handler with the appropriate number of spots
-func NewHandler(spots int) *Handler {
-	h := &Handler{
+func NewHandler(spots int) Handler {
+	h := &handler{
 		numSpots: spots,
-		spots:    make(map[int]bool),
+		spots:    make(map[string]bool),
 	}
 	for i := 0; i < spots; i++ {
-		h.spots[i] = false
+		h.spots[fmt.Sprintf("L00%2d", i+1)] = false
 	}
 	return h
 }
 
-func (h *Handler) GenerateEvent() {
+//GenerateEvent may generate a change in the state of one of the spots
+func (h *handler) GenerateEvent() {
 	h.Lock()
 	if rand.Int()%10 <= 3 {
 		toggle := rand.Int() % h.numSpots
-		h.spots[toggle] = !h.spots[toggle]
+		h.spots[fmt.Sprintf("L00%2d", toggle+1)] = !h.spots[fmt.Sprintf("L00%2d", toggle+1)]
 	}
 	h.Unlock()
 }
 
 type state struct {
-	Occupied   []int  `json:"occupied"`
-	Unoccupied []int  `json:"unoccupied"`
-	Time       string `json:"time"`
+	ID       string `json:"id"`
+	Occupied bool   `json:"occupied"`
+	Time     string `json:"time"`
 }
 
-func (h *Handler) GetState(w http.ResponseWriter, r *http.Request) {
-	current := state{Occupied: []int{}, Unoccupied: []int{}, Time: time.Now().String()}
+//GetState returns the current state of the lot
+func (h *handler) GetState(w http.ResponseWriter, r *http.Request) {
+	current := make([]state, h.numSpots)
 	h.Lock()
 	for s, o := range h.spots {
-		if o {
-			current.Occupied = append(current.Occupied, s)
-		} else {
-			current.Unoccupied = append(current.Unoccupied, s)
-		}
+		spot := state{ID: s, Occupied: o, Time: time.Now().String()}
+		current = append(current, spot)
 	}
 	h.Unlock()
 	w.WriteHeader(http.StatusOK)
