@@ -1,7 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"log"
+	"math/rand"
 	"net/http"
 	"time"
 
@@ -14,8 +16,9 @@ func main() {
 	router := mux.NewRouter()
 	router.HandleFunc("/state", h.GetState).Methods("GET")
 	go func() {
-		time.Sleep(10 * time.Second)
 		h.GenerateEvent()
+		fmt.Println("generated")
+		time.Sleep(time.Second * time.Duration(rand.Int()%6+6))
 	}()
 	log.Fatal(http.ListenAndServe(":8081", router))
 }
