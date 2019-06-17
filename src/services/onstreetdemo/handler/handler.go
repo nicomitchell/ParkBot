@@ -46,6 +46,7 @@ func (h *handler) GenerateEvent() {
 	}
 	h.Unlock()
 }
+
 type coord struct {
 	X float64 `json:"x"`
 	Y float64 `json:"y"`
@@ -55,7 +56,7 @@ type state struct {
 	ID       string  `json:"id"`
 	Occupied bool    `json:"state"`
 	Price    float64 `json:"price"`
-	Location coord 	 `json:"location"
+	Location coord 	 `json:"location"`
 }
 
 //GetState returns the current state of the lot
