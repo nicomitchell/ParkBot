@@ -6,7 +6,6 @@ import (
 	"math/rand"
 	"net/http"
 	"sync"
-	"time"
 )
 
 //Handler is the interface for the demo api
@@ -44,9 +43,9 @@ func (h *handler) GenerateEvent() {
 }
 
 type state struct {
-	ID       string `json:"id"`
-	Occupied bool   `json:"occupied"`
-	Time     string `json:"time"`
+	ID       string  `json:"id"`
+	Occupied bool    `json:"state"`
+	Price    float64 `json:"price"`
 }
 
 //GetState returns the current state of the lot
@@ -54,7 +53,7 @@ func (h *handler) GetState(w http.ResponseWriter, r *http.Request) {
 	current := make([]state, h.numSpots)
 	h.Lock()
 	for s, o := range h.spots {
-		spot := state{ID: s, Occupied: o, Time: time.Now().String()}
+		spot := state{ID: s, Occupied: o, Price: 6.00}
 		current = append(current, spot)
 	}
 	h.Unlock()
