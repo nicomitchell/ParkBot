@@ -55,7 +55,7 @@ type state struct {
 
 //GetState returns the current state of the lot
 func (h *handler) GetState(w http.ResponseWriter, r *http.Request) {
-	current := make([]state, h.numSpots)
+	current := []state{}
 	h.Lock()
 	for s, o := range h.spots {
 		spot := state{ID: s, Occupied: o, Price: 6.00}
