@@ -16,9 +16,11 @@ func main() {
 	router := mux.NewRouter()
 	router.HandleFunc("/state", h.GetState).Methods("GET")
 	go func() {
-		h.GenerateEvent()
-		fmt.Println("generated")
-		time.Sleep(time.Second * time.Duration(rand.Int()%6+6))
+		for {
+			h.GenerateEvent()
+			fmt.Println("generated")
+			time.Sleep(time.Second * time.Duration(rand.Int()%6+6))
+		}
 	}()
-	log.Fatal(http.ListenAndServe(":8081", router))
+	log.Fatal(http.ListenAndServe(":80", router))
 }
