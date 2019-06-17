@@ -27,7 +27,12 @@ func NewHandler(spots int) Handler {
 		spots:    make(map[string]bool),
 	}
 	for i := 0; i < spots; i++ {
-		h.spots[fmt.Sprintf("L00%2d", i+1)] = false
+		if i < 10 {
+			h.spots[fmt.Sprintf("L000%d", i+1)] = false
+		} else {
+			h.spots[fmt.Sprintf("L00%d", i+1)] = false
+
+		}
 	}
 	return h
 }
