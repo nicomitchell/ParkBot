@@ -58,7 +58,7 @@ func (h *handler) GetState(w http.ResponseWriter, r *http.Request) {
 	current := []state{}
 	h.Lock()
 	for s, o := range h.spots {
-		spot := state{ID: s, Occupied: o, Price: 6.00}
+		spot := state{ID: s, Occupied: o, Price: 2.50}
 		current = append(current, spot)
 	}
 	h.Unlock()
