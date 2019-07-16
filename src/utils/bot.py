@@ -23,6 +23,6 @@ while(True):
         tweet_mode="extended")
 
     s = api.create_favorite(tweet_candidates[randint(0,len(tweet_candidates)-1)].id)
-    if str(input("continue? ")=="n"):
+    if str(input("continue? ")).lower()=="n":
         break
     sleep(randint(3800,10000))
