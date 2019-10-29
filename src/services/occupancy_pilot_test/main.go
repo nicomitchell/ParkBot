@@ -4,8 +4,8 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/ParkBot/src/services/occupancy_pilot_test/pilot"
 	"github.com/gorilla/mux"
+	"github.com/nicomitchell/ParkBot/src/services/occupancy_pilot_test/pilot"
 )
 
 func main() {
